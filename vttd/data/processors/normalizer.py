@@ -237,6 +237,3 @@ class Normalizer(Processor):
         return text
     
     
-sentence = 'bài viết này hay vl'
-cc = Normalizer().process(sentence)
-print(cc)
