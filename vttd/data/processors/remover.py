@@ -1,53 +1,86 @@
 import re
-from vttd.data.processors.base import BaseProcessor
+from base import Processor
+from emot.emo_unicode import UNICODE_EMOJI, EMOTICONS_EMO
 
 
-class Remover(BaseProcessor):
+class Remover(Processor):
+
     """
     Remove unwanted substrings from Vietnamese text.
     """
+
     def __init__(self):
         super().__init__()
-        self.stopwords_re = re.compile(r'\b(' + r'|'.join(self.stopwords) + r')\b\s*')
-        self.hashtags_re = re.compile(r'#\w+')
-        self.mentions_re = re.compile(r'@\w+')
-        self.urls_re = re.compile(r'http\S+')
-        self.trailing_whitespace_re = re.compile(r'\s+$')
 
-    def add(self, file_path: str):
+    def add_stopwords_dash(self, file_path: str):
         """
         Add stopwords from file.
         :param file_path:   Path to file containing stopwords.
         :return:            Self.
         """
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding="utf8", errors="ignore") as f:
             self.stopwords = f.read().split()
         return self
+    
+    
+    def remove_stopwords(self, text):
+        '''
+        Remove stopwords from Vietnamese text.
+        :param text:          Vietnamese text.
+        :return:              Stopwords-removed text.
+        '''
+        f =  open("vietnamese-stopwords-dash.txt", 'r', encoding="utf-8")
+        stopwords = []
+        for line in f:
+            stopwords.append(line.strip())
+        
+        words = text.split(" ")
 
-    def process(self, text: str,
-                remove_stopwords: bool = False,
-                remove_hashtags: bool = False,
-                remove_mentions: bool = False,
-                remove_urls: bool = False,
-                remove_trailing_whitespace: bool = False,):
+        filtered_words = []
+        for word in words:
+            if word not in stopwords:
+                filtered_words.append(word)
+        text = " ".join(filtered_words)
+        return text
+
+
+    def remove_emoji(self, text):
+        """
+        Remove emoji.
+        :param text:   text needed to remove emoji.
+        :return:           Emoji-removed text.
+        """
+        for emot in UNICODE_EMOJI:
+            text = str(text).replace(emot, ' ')
+        text = re.sub('  +', ' ', text).strip()
+        return text
+
+
+    def mixed_word_number(self, text):
+        """
+        Remove all mixed words and numbers from Vietnamese text.
+        :param text:                            Vietnamese text.
+        :return:            Mixed_word_removed text.
+        """
+        text = ' '.join(s for s in text.split() if not any(c.isdigit() for c in s))
+        text = re.sub('  +', ' ', text).strip()
+        return text
+    
+    
+    def process(self, text: str):
         """
         Remove the unwanted substrings from Vietnamese text.
         :param text:                        Vietnamese text.
-        :param remove_stopwords:            Remove stopwords.
-        :param remove_hashtags:             Remove hashtags.
-        :param remove_mentions:             Remove mentions.
-        :param remove_urls:                 Remove URLs.
-        :param remove_trailing_whitespace:  Remove trailing whitespace.
         :return:                            Processed text.
         """
-        if remove_stopwords:
-            text = self.stopwords_re.sub('', text)
-        if remove_hashtags:
-            text = self.hashtags_re.sub('', text)
-        if remove_mentions:
-            text = self.mentions_re.sub('', text)
-        if remove_urls:
-            text = self.urls_re.sub('', text)
-        if remove_trailing_whitespace:
-            text = self.trailing_whitespace_re.sub('', text)
+        text = self.remove_stopwords(text)
+
+        text = self.remove_emoji(text)
+
+        text = self.mixed_word_number(text)
+        
+        text = text.strip()
+
+        text = " ".join(text.split())
+
         return text
