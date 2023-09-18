@@ -4,7 +4,6 @@ import joblib
 import unicodedata
 import pandas as pd
 import numpy as np
-import regex as re
 from sklearn import preprocessing
 from scipy import sparse
 from base import Processor
@@ -21,22 +20,8 @@ class Normalizer(Processor):
     """
     def __init__(self):
         super().__init__()    
-        self.tags_re = re.compile(r'(?:\@|\#|\://)\S+')
-        self.urls_re = re.compile(r'https?://\S+|www\.\S+')
-        self.special_character_re = re.compile(r'[~!@#$%^&*()_+{}“”|:\"<>?`´\-=[\]\;\\\/.,]')
-    
-    
-    def remove_repeated_character(self, text):
-        """
-        Remove all repeated_characters from Vietnamese text.
-        :param text:                            Vietnamese text.
-        :return:            repeated_character_removed text.
-        """
-        text = re.sub(r'(\w)\1+', r'\1', text)
-        text = re.sub('  +', ' ', text).strip()
-        return text
-    
-
+        
+                
     def normalize_unicode(text):
         """
         Normalize Unicode text from Vietnamese text.
@@ -53,7 +38,7 @@ class Normalizer(Processor):
         :param text:                          Vietnamese text.
         :return:                              Processed text.
         """
-        adn_path = os.path.join(os.getcwd(), 'resources\dictionary\abb_dict_normal.xlsx')
+        adn_path = os.path.join(os.getcwd(), 'resources\dictionary\\abb_dict_normal.xlsx')
         abb_dict_normal = pd.read_excel(adn_path)
         text = str(text)
         temp = ''
@@ -73,7 +58,7 @@ class Normalizer(Processor):
         :param text:                          Vietnamese text.
         :return:                              Processed text.
         """
-        ads_path = os.path.join(os.getcwd(), 'resources\dictionary\abb_dict_special.xlsx')
+        ads_path = os.path.join(os.getcwd(), 'resources\dictionary\\abb_dict_special.xlsx')
         abb_dict_special = pd.read_excel(ads_path)
         text = ' ' + str(text) + ' '
         for i in range(abb_dict_special.shape[0]):
@@ -123,7 +108,7 @@ class Normalizer(Processor):
     def annotations(self, dataset):
         """
         Generate postion list from Vietnamese text.
-        :param dataset:               Vietnamese text.
+        :param dataset:            Vietnamese text.
         :return:                   Processed text.
         """
         pos = []
@@ -145,13 +130,13 @@ class Normalizer(Processor):
         :param t:                               Vietnamese text.
         :return:                                Processed text.
         """
-        model_path = os.path.join(os.getcwd(), 'resources\abb_model\abb_model.sav')
+        model_path = os.path.join(os.getcwd(), 'resources\\abb_model\\abb_model.sav')
         loaded_model = joblib.load(model_path)
 
-        da_path = os.path.join(os.getcwd(), 'resources\dictionary/abbreviation_dictionary_vn.xlsx')
-        train_path = os.path.join(os.getcwd(), 'resources\dictionary/train_duplicate_abb_data.xlsx')
-        dev_path = os.path.join(os.getcwd(), 'resources\dictionary/dev_duplicate_abb_data.xlsx')
-        test_path = os.path.join(os.getcwd(), 'resources\dictionary/test_duplicate_abb_data.xlsx')
+        da_path = os.path.join(os.getcwd(), 'resources\dictionary\\abbreviation_dictionary_vn.xlsx')
+        train_path = os.path.join(os.getcwd(), 'resources\dictionary\\train_duplicate_abb_data.xlsx')
+        dev_path = os.path.join(os.getcwd(), 'resources\dictionary\\dev_duplicate_abb_data.xlsx')
+        test_path = os.path.join(os.getcwd(), 'resources\dictionary\\test_duplicate_abb_data.xlsx')
         duplicate_abb = pd.read_excel(da_path, sheet_name='duplicate', header=None)
         duplicate_abb = list(duplicate_abb[0])
 
@@ -208,32 +193,4 @@ class Normalizer(Processor):
                     for i in range(start_index + 1, end_index + 1): 
                         cmt = cmt[:i] + ' ' + cmt[i + 1:]
         return text
-    
-    
-    def process(self, text: str):
-        """
-        Normalize substrings from Vietnamese text.
-        :param text:              Vietnamese text.
-        :return:                  Processed text.
-        """
-        text = self.tags_re.sub('', text)
-
-        text = self.urls_re.sub('', text)
-        
-        text = self.remove_repeated_character(text)
-        
-        text = self.special_character_re.sub('',text)
-        
-        text = self.normalize_abbreviation(text)
-        
-        text = self.normalize_abbreviation_special(text)
-        
-        text = self.normalize_kk_abbreviation(text)
-        
-        text = self.abbreviation_predict(text)
-                
-        text = self.tokenize(text)
-        
-        return text
-    
     
