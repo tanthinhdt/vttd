@@ -11,17 +11,7 @@ class Remover(Processor):
 
     def __init__(self):
         super().__init__()
-
-    def add_stopwords_dash(self, file_path: str):
-        """
-        Add stopwords from file.
-        :param file_path:   Path to file containing stopwords.
-        :return:            Self.
-        """
-        with open(file_path, 'r', encoding="utf8", errors="ignore") as f:
-            self.stopwords = f.read().split()
-        return self
-    
+        
     
     def remove_stopwords(self, text):
         '''
@@ -29,7 +19,7 @@ class Remover(Processor):
         :param text:          Vietnamese text.
         :return:              Stopwords-removed text.
         '''
-        f =  open("vietnamese-stopwords-dash.txt", 'r', encoding="utf-8")
+        f =  open("resources/vietnamese_stop_words/vietnamese-stopwords-dash.txt", 'r', encoding="utf-8")
         stopwords = []
         for line in f:
             stopwords.append(line.strip())
@@ -41,6 +31,49 @@ class Remover(Processor):
             if word not in stopwords:
                 filtered_words.append(word)
         text = " ".join(filtered_words)
+        return text
+    
+    # Remove emoji and emoticons
+    def remove_emoji(self, text):
+        for emot in UNICODE_EMOJI:
+            text = str(text).replace(emot, ' ')
+        text = re.sub('  +', ' ', text).strip()
+        return text
+
+
+    # Remove url
+    def url(self, text):
+        text = re.sub(r'https?://\S+|www\.\S+', ' ', str(text))
+        text = re.sub('  +', ' ', text).strip()
+        return text
+
+    
+    # remove special character
+    def special_character(self, text):
+        text = re.sub(r'\d+', lambda m: " ", text)
+        # text = re.sub(r'\b(\w+)\s+\1\b',' ', text) #remove duplicate number word
+        text = re.sub("[~!@#$%^&*()_+{}“”|:\"<>?`´\-=[\]\;\\\/.,]", " ", text)
+        text = re.sub('  +', ' ', text).strip()
+        return text
+
+
+    def remove_duplicates(self, input_str):
+        output_str = input_str[0]
+        for char in input_str[1:]:
+            if char != output_str[-1]:
+                output_str += char
+        return output_str
+
+
+    def mail(self, text):
+        text = re.sub(r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'," ", text)
+        return text
+
+
+    # remove mention tag and hashtag
+    def tag(self, text):
+        text = re.sub(r"(?:\@|\#|\://)\S+", " ", text)
+        text = re.sub('  +', ' ', text).strip()
         return text
 
 
@@ -55,8 +88,8 @@ class Remover(Processor):
         text = re.sub('  +', ' ', text).strip()
         return text
 
-
-    def mixed_word_number(self, text):
+    
+    def remove_mixed_word_number(self, text):
         """
         Remove all mixed words and numbers from Vietnamese text.
         :param text:                            Vietnamese text.
@@ -66,21 +99,3 @@ class Remover(Processor):
         text = re.sub('  +', ' ', text).strip()
         return text
     
-    
-    def process(self, text: str):
-        """
-        Remove the unwanted substrings from Vietnamese text.
-        :param text:                        Vietnamese text.
-        :return:                            Processed text.
-        """
-        text = self.remove_stopwords(text)
-
-        text = self.remove_emoji(text)
-
-        text = self.mixed_word_number(text)
-        
-        text = text.strip()
-
-        text = " ".join(text.split())
-
-        return text
