@@ -40,7 +40,7 @@ def process(text: str):
 
 import pandas as pd 
 
-data_test = pd.read_csv(r"C:\Users\ngduy\FPT\Deep Learning\Text Classification\Data_backup\ViHSD_Normalized\concatinated_data\test.csv")
+data_test = pd.read_csv(r"raw\test.csv")
 data_test = data_test.head(10)
 data_test["Free_text"] = data_test["Free_text"].apply(process)
 data_test.to_csv("processed/data_test_processed.csv", index = False)
