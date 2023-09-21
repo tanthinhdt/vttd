@@ -1,5 +1,6 @@
 from normalizer import Normalizer
 from remover import Remover
+import pandas as pd 
 
 
 def process(text: str):
@@ -34,13 +35,11 @@ def process(text: str):
             
     text = Normalizer().tokenize(text)
     
-    # text = Remover().remove_stopwords(text)
+    text = Remover().remove_stopwords(text)
     
     return text
 
-import pandas as pd 
 
 data_test = pd.read_csv(r"raw\test.csv")
-data_test = data_test.head(10)
 data_test["Free_text"] = data_test["Free_text"].apply(process)
-data_test.to_csv("processed/data_test_processed.csv", index = False)
+data_test.to_csv("processed/data_test_processed_withh_stopwords.csv", index = False)
