@@ -10,19 +10,19 @@ def process(text: str):
     """
     text = text.lower()
     
-    text = Remover().url(text)
+    text = Remover().remove_url(text)
     
-    text = Remover().mail(text)
+    text = Remover().remove_mail(text)
             
-    text = Remover().tag(text)
+    text = Remover().remove_tags(text)
     
     text = Remover().remove_mixed_word_number(text)
     
-    text = Remover().special_character(text)
+    text = Remover().remove_special_character(text)
     
     text = Remover().remove_emoji(text)
     
-    text = Remover().remove_duplicates(text)
+    text = Remover().remove_repeated_character(text)
             
     text = Normalizer().normalize_abbreviation(text)
     
@@ -37,3 +37,10 @@ def process(text: str):
     text = Remover().remove_stopwords(text)
     
     return text
+
+import pandas as pd 
+
+data_test = pd.read_csv(r"C:\Users\ngduy\FPT\Deep Learning\Text Classification\Data_backup\ViHSD_Normalized\concatinated_data\test.csv")
+data_test = data_test.head(200)
+data_test["Free_text"] = data_test["Free_text"].apply(process)
+data_test.to_csv("processed/data_test_processed.csv", index = False)
