@@ -114,3 +114,4 @@ class Remover(Processor):
         """
         text = ' '.join(s for s in text.split() if not any(c.isdigit() for c in s))
         return text
+    
