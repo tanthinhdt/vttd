@@ -62,8 +62,12 @@ class Remover(Processor):
         :param text:   text needed to remove repeated character.
         :return:           repeated_character-removed text.
         """
-        text = re.sub(r'(\w)\1+', r'\1', text)
-        return text
+        words = text.split()
+        for i in range(len(words)):
+            if len(words[i])==2:
+                continue
+            words[i] = re.sub(r'(\w)\1+', r'\1', words[i])
+        return ' '.join(words)
 
 
     def remove_mail(self, text):
