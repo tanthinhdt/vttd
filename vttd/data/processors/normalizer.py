@@ -22,7 +22,7 @@ class Normalizer(Processor):
         super().__init__()    
         
                 
-    def normalize_unicode(text):
+    def normalize_unicode(self, text):
         """
         Normalize Unicode text from Vietnamese text.
         :param text                 Vietnamese text.
